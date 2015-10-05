@@ -9,6 +9,8 @@ var width;
 var height;
 var tile;
 var printLn;
+var selectionX;
+var selectionY;
 
 // Map
 // 17x17x2
@@ -39,34 +41,45 @@ var canvas = document.getElementById("scriptCanvas");
 var context = canvas.getContext("2d");
 
 // Left-click
-var mouseDown = function(event) {
-    tile = map[Math.floor((event.y / 30))][Math.floor((event.x / 30))];
+var keyUp = function(event) {
     
-    // If neither, create just wall
-    if(tile[0] === 0 && tile[1] === 0) {
-        tile[0] = 1;
+    // WASD
+    if(event.keyCode == 87 || event.keyCode == 38) selectionY -= 1;
+    if(event.keyCode == 83 || event.keyCode == 40) selectionY += 1;
+    if(event.keyCode == 65 || event.keyCode == 37) selectionX -= 1;
+    if(event.keyCode == 68 || event.keyCode == 39) selectionX += 1;
     
-    // if wall but no ceiling, create both
-    } else if(tile[0] === 1 && tile[1] === 0) {
-        tile[1] = 1;
-    
-    // if both, remove just wall
-    } else if(tile[0] === 1 && tile[1] === 1) {
-        tile[0] = 0;
-    
-    // if just ceiling, remove just ceiling
-    } else {
-        tile[1] = 0;
+    // Enter
+    if(event.keyCode == 13) {
+        
+        var tile = map[selectionY][selectionX];
+        
+        // If neither, create just wall
+        if(tile[0] === 0 && tile[1] === 0) {
+            tile[0] = 1;
+        
+        // If wall but no ceiling, create both
+        } else if(tile[0] === 1 && tile[1] === 0) {
+            tile[1] = 1;
+        
+        // If both, remove just wall
+        } else if(tile[0] === 1 && tile[1] === 1) {
+            tile[0] = 0;
+        
+        // If just ceiling, remove just ceiling
+        } else {
+            tile[1] = 0;
+        }
+        
+        print();
     }
     
-    // Update
     draw();
-    print();
 };
 
 // Printing map
 var print = function() {
-    console.log("[");
+    /* console.log("[");
     for(var row = 0; row < 17; row++) {
         printLn = "[";
         for(var column = 0; column < 17; column++) {
@@ -82,7 +95,27 @@ var print = function() {
         }
         console.log(printLn);
     }
-    console.log("]");
+    console.log("]"); */
+    
+    var north   = 1;
+    var south   = 2;
+    var east    = 4;
+    var west    = 8;
+    
+    // wall, ceiling
+    for(var column = 1; column < 17; column++) {
+        var line = "";
+        for(var row = 1; row < 17; row++) {
+            var num = ((map[row][column][1] * east)
+                    + (map[row][column - 1][1] * west)
+                    + (map[row][column][0] * north)
+                    + (map[row - 1][column][0] * south));
+            line += ("0x" + num.toString(16) + "0, ");
+            // if((++count % 16) == 0 ) console.log("\n");
+        }
+        
+        console.log(line);
+    }
 };
 
 // Draw current map
@@ -110,7 +143,11 @@ var draw = function() {
     // Drawing tiles
     for(var row = 0; row < 17; row++) {
         for(var column = 0; column < 17; column++) { // x, y, width, height
+            if(selectionX == row && selectionY == column) 
+                    context.fillStyle = "blue";
             context.fillRect(row * 30, (column * 30) + 1, 29, 29);
+            if(selectionX == row && selectionY == column) 
+                    context.fillStyle = "black";
         }
     }
     
@@ -135,6 +172,9 @@ var draw = function() {
 // At load time
 window.onload = function() {
     
+    selectionX = 0;
+    selectionY = 0;
+    
     // Canvas size
     canvas.width = 510;
     canvas.height = 510;
@@ -143,5 +183,7 @@ window.onload = function() {
     draw();
     
     // Mouse Event
-    canvas.addEventListener("mousedown", mouseDown);
+    document.addEventListener("keyup", keyUp);
+    
+    print();
 };
