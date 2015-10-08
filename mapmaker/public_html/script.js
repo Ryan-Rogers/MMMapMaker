@@ -43,35 +43,21 @@ var context = canvas.getContext("2d");
 // Left-click
 var keyUp = function(event) {
     
-    // WASD
-    if(event.keyCode == 87 || event.keyCode == 38) selectionY -= 1;
-    if(event.keyCode == 83 || event.keyCode == 40) selectionY += 1;
-    if(event.keyCode == 65 || event.keyCode == 37) selectionX -= 1;
-    if(event.keyCode == 68 || event.keyCode == 39) selectionX += 1;
+    var tile = map[selectionY][selectionX];
     
-    // Enter
-    if(event.keyCode == 13) {
-        
-        var tile = map[selectionY][selectionX];
-        
-        // If neither, create just wall
-        if(tile[0] === 0 && tile[1] === 0) {
-            tile[0] = 1;
-        
-        // If wall but no ceiling, create both
-        } else if(tile[0] === 1 && tile[1] === 0) {
-            tile[1] = 1;
-        
-        // If both, remove just wall
-        } else if(tile[0] === 1 && tile[1] === 1) {
-            tile[0] = 0;
-        
-        // If just ceiling, remove just ceiling
-        } else {
-            tile[1] = 0;
-        }
-        
-        print();
+    // WASD
+    if(event.keyCode == 87) selectionY -= 1;
+    else if(event.keyCode == 83) selectionY += 1;
+    else if(event.keyCode == 65) selectionX -= 1;
+    else if(event.keyCode == 68) selectionX += 1;
+    
+    // Toggling walls with just up and right
+    else if(event.keyCode == 38) { // Up
+        if(tile[1] == 1) tile[1] = 0;
+        else tile[1] = 1;
+    } else if(event.keyCode == 39) { // Right
+        if(tile[0] == 1) tile[0] = 0;
+        else tile[0] = 1;
     }
     
     draw();
@@ -79,23 +65,6 @@ var keyUp = function(event) {
 
 // Printing map
 var print = function() {
-    /* console.log("[");
-    for(var row = 0; row < 17; row++) {
-        printLn = "[";
-        for(var column = 0; column < 17; column++) {
-            printLn += ("[" + map[row][column][0] + ", " + map[row][column][1] 
-                    + "]");
-            if(column !== 16) {
-                printLn += ",";
-            }
-        }
-        printLn += "]";
-        if(row !== 16) {
-            printLn += ",";
-        }
-        console.log(printLn);
-    }
-    console.log("]"); */
     
     var north   = 1;
     var south   = 2;
