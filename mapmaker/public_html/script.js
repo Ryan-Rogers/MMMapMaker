@@ -55,9 +55,11 @@ var keyUp = function(event) {
     else if(event.keyCode == 38) { // Up
         if(tile[1] == 1) tile[1] = 0;
         else tile[1] = 1;
+        print();
     } else if(event.keyCode == 39) { // Right
         if(tile[0] == 1) tile[0] = 0;
         else tile[0] = 1;
+        print();
     }
     
     draw();
@@ -72,18 +74,18 @@ var print = function() {
     var west    = 8;
     
     // wall, ceiling
+    var output = "";
     for(var column = 1; column < 17; column++) {
-        var line = "";
         for(var row = 1; row < 17; row++) {
             var num = ((map[row][column][1] * east)
                     + (map[row][column - 1][1] * west)
                     + (map[row][column][0] * north)
                     + (map[row - 1][column][0] * south));
-            line += ("0x" + num.toString(16) + "0, ");
-            // if((++count % 16) == 0 ) console.log("\n");
+            output += ("0x" + num.toString(16) + "0, ");
         }
         
-        console.log(line);
+        document.getElementById("output").value = output;
+        
     }
 };
 
@@ -153,6 +155,13 @@ window.onload = function() {
     
     // Mouse Event
     document.addEventListener("keyup", keyUp);
+    
+    // Textbox
+    var outputStyle = document.getElementById("output").style;
+    console.log(outputStyle);
+    
+    outputStyle.width = window.innerWidth - canvas.width - 10 + "px";
+    outputStyle.height = "500px";
     
     print();
 };
